@@ -468,4 +468,202 @@ function openOverlayPreview(cfg){
   // prevent multiples
   if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
 
-  overlayEl = document.cr
+  overlayEl = document.createElement('div');
+  overlayEl.style.position='fixed';
+  overlayEl.style.inset='0';
+  overlayEl.style.display='flex';
+  overlayEl.style.alignItems=(cfg.position==='bottom'?'flex-end':(cfg.position==='top'||cfg.position==='top-cover'?'flex-start':'center'));
+  overlayEl.style.justifyContent=(cfg.position==='right-cover'?'flex-end':(cfg.position==='left-cover'?'flex-start':'center'));
+  overlayEl.style.background='rgba(0,0,0,0.45)';
+  overlayEl.style.zIndex=2147483647;
+
+  const box = document.createElement('div');
+  box.style.maxWidth=(cfg.position==='top-cover'?'100%':'720px');
+  box.style.width=(cfg.position==='top-cover'?'100%':'92%');
+  box.style.background=cfg.popupBg || '#fff';
+  box.style.borderRadius=(cfg.position==='top-cover'?'0 0 12px 12px':'12px');
+  box.style.padding='18px';
+  box.style.boxSizing='border-box';
+  box.style.margin=(cfg.position==='bottom'?'24px':'0');
+  box.style.position='relative';
+  box.style.boxShadow='0 18px 60px rgba(4,18,40,0.12)';
+
+  // header/text
+  const hdr = document.createElement('div');
+  hdr.innerHTML = `<div style="font-weight:800;color:${cfg.headlineColor};font-size:20px">${cfg.headline}</div>
+                   <div style="margin-top:8px;color:${cfg.textColor};font-size:14px;line-height:1.45">${cfg.text}</div>`;
+  box.appendChild(hdr);
+
+  // media
+  if (cfg.mediaUrl && cfg.mediaType !== 'none') {
+    const mwrap = document.createElement('div'); mwrap.style.marginTop='12px';
+    if ((cfg.mediaUrl.match && cfg.mediaUrl.match(/\.mp4($|\?)/i)) || (cfg.mediaUrl.startsWith && cfg.mediaUrl.startsWith('data:video'))) {
+      const v = document.createElement('video');
+      v.src = cfg.mediaUrl; v.controls = true; v.style.width='100%'; v.style.borderRadius='8px';
+      mwrap.appendChild(v);
+    } else if (cfg.mediaType === 'icon') {
+      mwrap.innerHTML = `<div style="font-size:42px">${cfg.mediaUrl || '⭐'}</div>`;
+    } else {
+      const img = document.createElement('img'); img.src = cfg.mediaUrl; img.style.width='100%'; img.style.borderRadius='8px';
+      if (cfg.mediaLink) {
+        const a = document.createElement('a'); a.href = cfg.mediaLink; a.target='_blank'; a.rel='noopener noreferrer';
+        a.appendChild(img); mwrap.appendChild(a);
+      } else mwrap.appendChild(img);
+    }
+    box.appendChild(mwrap);
+  }
+
+  // button
+  if (cfg.buttonText) {
+    const a = document.createElement('a');
+    a.textContent = cfg.buttonText;
+    a.href = cfg.buttonLink || '#';
+    a.style.display='inline-block';
+    a.style.padding='10px 14px';
+    a.style.marginTop='12px';
+    a.style.borderRadius='8px';
+    a.style.color=cfg.buttonTextColor;
+    a.style.background=cfg.buttonBgColor;
+    a.style.textDecoration='none';
+    a.target = (cfg.actionType === 'newtab') ? '_blank' : '_self';
+    if (cfg.actionType === 'close') {
+      a.href = 'javascript:void(0)';
+      a.addEventListener('click', (e)=>{ e.preventDefault(); if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl); });
+    } else {
+      a.addEventListener('click', ()=>{ if (cfg.actionType === 'newtab' && overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl); });
+    }
+    box.appendChild(a);
+  }
+
+  // close symbol
+  if (cfg.showClose) {
+    const c = document.createElement('div'); c.innerHTML='✕';
+    c.style.position='absolute'; c.style.right='14px'; c.style.top='14px'; c.style.cursor='pointer'; c.style.fontSize='18px';
+    c.addEventListener('click', ()=>{ if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl); });
+    box.appendChild(c);
+  }
+
+  overlayEl.appendChild(box);
+
+  // backdrop click
+  if (!cfg.noBackdropClose) {
+    overlayEl.addEventListener('click', function(e){
+      if (e.target === overlayEl) overlayEl.remove();
+    });
+  }
+
+  // show after delay
+  setTimeout(()=> document.body.appendChild(overlayEl), (cfg.delay || 2) * 1000);
+}
+
+/* Save / Load / Delete local configs (clean) */
+function refreshSaved() {
+  const sel = $.savedConfigs; sel.innerHTML = '';
+  const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
+  all.forEach(a => {
+    const opt = document.createElement('option'); opt.value = a.id;
+    opt.textContent = a.name + ' — ' + new Date(a.cfg.createdAt).toLocaleString();
+    sel.appendChild(opt);
+  });
+}
+
+function saveConfig(){
+  const cfg = getConfig();
+  const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
+  const id = 'cfg_' + Date.now();
+  all.push({ id, name: cfg.headline.slice(0,40) || 'Popup', cfg });
+  localStorage.setItem('smartpop_configs', JSON.stringify(all));
+  refreshSaved();
+  alert('Saved config locally.');
+}
+
+function loadConfig(){
+  const id = $.savedConfigs.value;
+  if (!id) return alert('Choose config to load');
+  const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
+  const item = all.find(x => x.id === id);
+  if (!item) return alert('Not found');
+  const c = item.cfg;
+  // populate UI
+  $.add_schedule.checked = !!c.addSchedule;
+  $.start_dt.value = c.startAt || '';
+  $.end_dt.value = c.endAt || '';
+  $.headline.value = c.headline || '';
+  $.headline_color.value = c.headlineColor || '#111827';
+  $.text.value = c.text || '';
+  $.text_color.value = c.textColor || '#374151';
+  $.button_text.value = c.buttonText || '';
+  $.button_link.value = c.buttonLink || '';
+  $.action_type.value = c.actionType || 'newtab';
+  $.button_text_color.value = c.buttonTextColor || '#ffffff';
+  $.button_bg_color.value = c.buttonBgColor || '#0b5cff';
+  $.media_type.value = c.mediaType || 'image';
+  $.position.value = c.position || 'center';
+  $.media_url.value = c.mediaUrl || '';
+  renderMediaPreview(c.mediaUrl || '');
+  $.media_link.value = c.mediaLink || '';
+  $.popup_bg.value = c.popupBg || '#ffffff';
+  $.show_close.checked = c.showClose !== false;
+  $.no_backdrop_close.checked = !!c.noBackdropClose;
+  $.visible_all.checked = c.visibleAll !== false;
+  $.hide_desktop.checked = !!c.hideDesktop;
+  $.hide_mobile.checked = !!c.hideMobile;
+  $.delay.value = c.delay || 2;
+  $.freq_toggle.checked = !!c.freqToggle;
+  $.every_load.checked = !!c.everyLoad;
+  $.frequency.value = (c.frequency !== undefined) ? c.frequency : 1;
+  applyShowCloseRule();
+  updateFrequencyUI();
+  applyScheduleVisibility();
+  buildEmbedAndPreviewArea();
+}
+
+function deleteConfig(){
+  const id = $.savedConfigs.value;
+  if (!id) return alert('Choose config to delete');
+  let all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
+  all = all.filter(x => x.id !== id);
+  localStorage.setItem('smartpop_configs', JSON.stringify(all));
+  refreshSaved();
+  buildEmbedAndPreviewArea();
+}
+
+/* Buttons */
+$.previewBtn.addEventListener('click', ()=> {
+  const cfg = getConfig();
+  openOverlayPreview(cfg);
+});
+$.generateBtn.addEventListener('click', ()=> {
+  const cfg = getConfig();
+  $.embedCode.textContent = buildEmbed(cfg);
+  alert('Embed snippet generated in the box. Replace loader placeholder URL with your hosted popup-loader.js before embedding.');
+});
+$.saveBtn.addEventListener('click', saveConfig);
+$.loadBtn.addEventListener('click', loadConfig);
+$.deleteBtn.addEventListener('click', deleteConfig);
+
+/* UI binding rules */
+$.show_close.addEventListener('change', ()=> { applyShowCloseRule(); buildEmbedAndPreviewArea(); });
+$.no_backdrop_close.addEventListener('change', buildEmbedAndPreviewArea);
+$.every_load.addEventListener('change', ()=>{ updateFrequencyUI(); buildEmbedAndPreviewArea(); });
+$.freq_toggle.addEventListener('change', ()=>{ updateFrequencyUI(); buildEmbedAndPreviewArea(); });
+$.add_schedule.addEventListener('change', ()=>{ applyScheduleVisibility(); buildEmbedAndPreviewArea(); });
+
+document.querySelectorAll('input,select,textarea').forEach(el=>{
+  el.addEventListener('input', buildEmbedAndPreviewArea);
+  el.addEventListener('change', buildEmbedAndPreviewArea);
+});
+
+/* Init */
+(function init(){
+  if(!localStorage.getItem('smartpop_configs')) localStorage.setItem('smartpop_configs','[]');
+  refreshSaved();
+  applyShowCloseRule();
+  updateFrequencyUI();
+  applyScheduleVisibility();
+  renderMediaPreview($.media_url.value);
+  buildEmbedAndPreviewArea();
+})();
+</script>
+</body>
+</html>
