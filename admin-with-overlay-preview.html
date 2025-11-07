@@ -1,1 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Smartarget — Popup Builder (Overlay Preview)</title>
+<link href="https://unicons.iconscout.com/release/v3.0.3/css/line.css" rel="stylesheet">
+<style>
+  :root{
+    --page-bg:#eef4fb; --card:#fff; --accent:#0b5cff; --muted:#64748b; --panel-border:#e6eefc; --radius:12px;
+    --shadow:0 10px 30px rgba(9,20,40,0.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;background:var(--page-bg);color:#081025}
+  header{background:linear-gradient(90deg,#06122a,#0b2146);color:white;padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
+  header h1{margin:0;font-size:18px}
+  header .badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:999px;font-weight:600}
+  .wrap{max-width:1200px;margin:20px auto;padding:18px;display:grid;grid-template-columns:480px 1fr;gap:18px}
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--panel-border);padding:16px;box-shadow:var(--shadow)}
+  .section-title{font-weight:800;margin:0 0 10px 0;font-size:15px;color:#071232}
+  label{display:block;margin-top:10px;font-weight:700;color:#10203a;font-size:13px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  input[type=text], input[type=url], input[type=number], textarea, select, input[type=datetime-local]{
+    width:100%;padding:10px;margin-top:8px;border-radius:9px;border:1px solid #e9f2ff;background:#fbfdff;font-size:14px;color:#0b1224;
+  }
+  input[type=color]{height:36px;width:56px;border:none;padding:0;background:transparent}
+  .row{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .row-between{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .btn{padding:9px 12px;border-radius:9px;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,92,255,0.08)}
+  .media-box{border-radius:10px;padding:10px;border:1px solid #eef6ff;background:#fbfdff;margin-top:8px;display:flex;align-items:center;justify-content:center;min-height:92px}
+  .media-box img, .media-box video{max-width:100%; display:block; border-radius:8px}
+  .delete-link{display:block;color:#e02424;margin-top:8px;cursor:pointer;font-weight:700;text-decoration:none;font-size:13px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .preview-area{min-height:420px;display:flex;align-items:center;justify-content:center}
+  .codebox{background:#0b1220;color:#d1d5db;padding:12px;border-radius:10px;word-break:break-all;font-family:monospace}
+  footer{margin-top:12px;font-size:13px;color:var(--muted)}
+  .status{padding:8px;border-radius:8px;background:#f3f7ff;color:var(--accent);font-weight:700}
+  .label-inline{display:inline-flex;gap:8px;align-items:center}
+  @media (max-width:1024px){ .wrap{grid-template-columns:1fr;padding:12px} }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Smartarget — Popup Builder</h1>
+    <div class="badge">Overlay Preview (centered)</div>
+  </div>
+  <div style="font-weight:600;color:#cfe0ff">No branding • Test before embed</div>
+</header>
 
+<div class="wrap">
+  <!-- LEFT: controls -->
+  <div>
+    <!-- Schedule -->
+    <div class="card">
+      <div class="section-title">Schedule</div>
+      <label class="label-inline"><input id="add_schedule" type="checkbox"> Add Schedule</label>
+      <div id="schedule_block" style="display:none;margin-top:10px">
+        <label>Start Date & time</label>
+        <input id="start_dt" type="datetime-local">
+        <label style="margin-top:8px">End Date & time</label>
+        <input id="end_dt" type="datetime-local">
+        <div class="hint">Popup will only show between start and end when schedule is enabled.</div>
+      </div>
+    </div>
+
+    <!-- Header & Text -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Header & Text</div>
+      <label>Header text</label>
+      <input id="headline" type="text" value="🔥 15% OFF SALE">
+      <div class="row" style="margin-top:8px">
+        <div style="flex:1"><label style="margin:0;font-weight:600;font-size:12px">Header text color</label></div>
+        <input id="headline_color" type="color" value="#111827">
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="section-title" style="font-size:14px;margin-bottom:6px">Text design</div>
+        <textarea id="text" rows="3">Up to 15% off for limited time and on selected items. plus free shipping for the first 100 buyers</textarea>
+        <div class="row" style="margin-top:8px">
+          <div style="flex:1"><label style="margin:0;font-weight:600;font-size:12px">Text color</label></div>
+          <input id="text_color" type="color" value="#374151">
+        </div>
+      </div>
+    </div>
+
+    <!-- Button -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Button design</div>
+      <label>Button Text (leave empty to hide)</label>
+      <input id="button_text" type="text" value="Get the discount now!">
+      <div class="hint" style="margin-top:8px">Link (example):</div>
+      <input id="button_link" type="url" placeholder="https://your-site.com/...">
+
+      <label style="margin-top:10px">Action Type</label>
+      <select id="action_type">
+        <option value="newtab">Open in new tab</option>
+        <option value="sametab">Open in same tab</option>
+        <option value="close">Close popup</option>
+      </select>
+
+      <div class="two-col" style="margin-top:10px">
+        <div>
+          <label style="margin:0;font-weight:600;font-size:12px">Button Text color</label>
+          <input id="button_text_color" type="color" value="#ffffff" style="margin-top:8px">
+        </div>
+        <div>
+          <label style="margin:0;font-weight:600;font-size:12px">Button Background color</label>
+          <input id="button_bg_color" type="color" value="#0b5cff" style="margin-top:8px">
+        </div>
+      </div>
+    </div>
+
+    <!-- Image design -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Image design</div>
+
+      <div class="two-col">
+        <div>
+          <label style="margin:0;font-weight:600;font-size:13px">Addition</label>
+          <select id="media_type">
+            <option value="image">Image</option>
+            <option value="video">Video (mp4)</option>
+            <option value="icon">Icon</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="margin:0;font-weight:600;font-size:13px">Position</label>
+          <select id="position">
+            <option value="center">Center</option>
+            <option value="top-cover">Top-Cover</option>
+            <option value="top">Top</option>
+            <option value="right-cover">Right Cover</option>
+            <option value="left-cover">Left Cover</option>
+            <option value="bottom">Bottom slide-in</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div>
+          <label style="font-size:13px;margin:0">File<br><span class="hint">Recommended size: 1100x600</span></label>
+          <div id="mediaPreview" class="media-box"><div style="color:var(--muted)">No image / video</div></div>
+
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <input id="media_upload" type="file" accept="image/*,video/mp4">
+            <button id="media_delete" class="btn ghost" style="padding:8px 10px">Delete</button>
+          </div>
+          <a id="delete_image_link" class="delete-link" style="display:none">Delete image</a>
+        </div>
+
+        <div>
+          <label style="font-size:13px;margin:0">Link</label>
+          <input id="media_link" type="url" placeholder="https://your-site.com/...">
+          <div class="hint" style="margin-top:10px">Image click opens this URL (if set).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup design -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Popup design</div>
+      <label>Popup background color</label>
+      <input id="popup_bg" type="color" value="#ffffff">
+    </div>
+
+    <!-- Close & Visibility -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Close button design</div>
+      <div class="row-between" style="margin-top:8px">
+        <label class="label-inline"><input id="show_close" type="checkbox" checked> Show close button</label>
+        <label class="label-inline"><input id="no_backdrop_close" type="checkbox"> Don't hide popup on backdrop click</label>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="section-title" style="font-size:14px;margin-top:6px">Visibility & Frequency</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <label><input id="visible_all" type="checkbox" checked> Visible on all devices</label>
+        <label><input id="hide_desktop" type="checkbox"> Hide on desktop</label>
+        <label><input id="hide_mobile" type="checkbox"> Hide on mobile</label>
+      </div>
+    </div>
+
+    <!-- Delay & Frequency -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Popup Delay & Appearance</div>
+      <label>Show popup after X seconds</label>
+      <input id="delay" type="number" min="0" value="2">
+
+      <div style="margin-top:10px" class="row-between">
+        <label><input id="freq_toggle" type="checkbox"> Show popup with specific frequency...</label>
+        <label><input id="every_load" type="checkbox"> Show popup on every page load</label>
+      </div>
+
+      <div id="freq_controls" style="margin-top:10px">
+        <label>Popup Frequency (days)</label>
+        <input id="frequency" type="number" value="1" min="-1" step="1">
+        <div class="hint">Set -1 to disable, 0 to show once, 1+ to show every N days</div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button id="previewBtn" class="btn">Preview Popup</button>
+        <button id="generateBtn" class="btn ghost" style="background:linear-gradient(90deg,#16a34a,#059669);color:white">Generate Embed Code</button>
+        <button id="saveBtn" class="btn ghost">Save Config</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Saved configs</label>
+        <select id="savedConfigs" style="width:100%;margin-top:8px"></select>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="loadBtn" class="btn ghost">Load</button>
+          <button id="deleteBtn" class="btn ghost">Delete</button>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">After generating embed, replace loader placeholder URL with your hosted <code>popup-loader.js</code>.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: preview & embed -->
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="section-title">Live Preview</div>
+          <div class="hint">Click <strong>Preview Popup</strong> to open an interactive overlay on this page.</div>
+        </div>
+        <div id="previewStatus" class="status">Preview Ready</div>
+      </div>
+
+      <div id="livePreview" class="preview-area" style="margin-top:12px">
+        <div style="text-align:center;color:var(--muted)">
+          <div style="font-weight:700">Preview area</div>
+          <div class="hint">Use the controls on the left and click "Preview Popup" to test overlay.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <h4 style="margin:0 0 10px 0">Embed Snippet</h4>
+        <div id="embedCode" class="codebox" style="min-height:72px"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <h4 style="margin:0 0 6px 0">Usage</h4>
+        <ol class="hint" style="padding-left:18px;margin:0">
+          <li>Host <strong>popup-loader.js</strong> publicly (GitHub Pages recommended).</li>
+          <li>Click <strong>Generate Embed Code</strong>, copy snippet, replace <code>https://yourdomain.com/popup-loader.js</code> with loader URL.</li>
+          <li>Paste snippet into pages where you want the popup to appear.</li>
+        </ol>
+      </div>
+      <footer>Configs stored in localStorage (browser). Ask if you want central hosting of configs or smaller media handling.</footer>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay will be created dynamically when previewing -->
+<script>
+/* Utility */
+const $ = id => document.getElementById(id);
+
+/* Create a hidden input for storing uploaded media dataURL (hidden from UI) */
+(function ensureHiddenMediaField(){
+  if (!document.getElementById('media_url')) {
+    const i = document.createElement('input');
+    i.type = 'hidden';
+    i.id = 'media_url';
+    document.body.appendChild(i);
+  }
+})();
+
+/* Rules: show_close <-> no_backdrop_close; every_load <-> frequency; schedule toggles */
+function applyShowCloseRule() {
+  if (!$.show_close.checked) {
+    $.no_backdrop_close.checked = false;
+    $.no_backdrop_close.disabled = true;
+  } else {
+    $.no_backdrop_close.disabled = false;
+  }
+}
+
+function updateFrequencyUI(){
+  if ($.every_load.checked) {
+    $.freq_toggle.checked = false;
+    document.getElementById('freq_controls').style.display = 'none';
+  } else {
+    document.getElementById('freq_controls').style.display = $.freq_toggle.checked ? 'block' : 'none';
+  }
+}
+
+function applyScheduleVisibility(){
+  document.getElementById('schedule_block').style.display = $.add_schedule.checked ? 'block' : 'none';
+}
+
+/* Media upload & preview (direct upload -> data URL) */
+function renderMediaPreview(url) {
+  const p = $.mediaPreview;
+  p.innerHTML = '';
+  if (!url) {
+    p.innerHTML = '<div style="color:var(--muted)">No image / video</div>';
+    $.delete_image_link.style.display = 'none';
+    return;
+  }
+  $.delete_image_link.style.display = 'block';
+  if ((typeof url === 'string' && url.startsWith('data:video')) || (url.match && url.match(/\.mp4($|\?)/i))) {
+    const v = document.createElement('video'); v.src = url; v.controls = true; v.style.width = '100%'; p.appendChild(v);
+  } else {
+    const img = document.createElement('img'); img.src = url; img.style.width = '100%'; img.style.borderRadius = '8px'; p.appendChild(img);
+  }
+}
+
+/* Read file and set hidden media_url */
+$.media_upload.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    $.media_url.value = evt.target.result; // stores dataURL
+    renderMediaPreview(evt.target.result);
+    buildEmbedAndPreviewArea();
+  };
+  reader.readAsDataURL(f);
+});
+
+$.media_delete.addEventListener('click', ()=>{
+  $.media_url.value = '';
+  $.media_upload.value = '';
+  renderMediaPreview('');
+  buildEmbedAndPreviewArea();
+});
+$.delete_image_link.addEventListener('click', ()=>{
+  $.media_url.value = '';
+  $.media_upload.value = '';
+  renderMediaPreview('');
+  buildEmbedAndPreviewArea();
+});
+
+/* Build config object from UI */
+function getConfig(){
+  return {
+    addSchedule: !!$.add_schedule.checked,
+    startAt: $.start_dt.value || null,
+    endAt: $.end_dt.value || null,
+    headline: $.headline.value.trim(),
+    headlineColor: $.headline_color.value,
+    text: $.text.value.trim(),
+    textColor: $.text_color.value,
+    buttonText: $.button_text.value.trim(),
+    buttonLink: $.button_link.value.trim(),
+    actionType: $.action_type.value,
+    buttonTextColor: $.button_text_color.value,
+    buttonBgColor: $.button_bg_color.value,
+    mediaType: $.media_type.value,
+    position: $.position.value,
+    mediaUrl: $.media_url.value || null,
+    mediaLink: $.media_link.value.trim(),
+    popupBg: $.popup_bg.value,
+    showClose: $.show_close.checked,
+    noBackdropClose: $.no_backdrop_close.checked,
+    visibleAll: $.visible_all.checked,
+    hideDesktop: $.hide_desktop.checked,
+    hideMobile: $.hide_mobile.checked,
+    delay: parseInt($.delay.value || '2', 10),
+    freqToggle: $.freq_toggle.checked,
+    everyLoad: $.every_load.checked,
+    frequency: parseInt($.frequency.value || '1', 10),
+    createdAt: Date.now()
+  };
+}
+
+/* Schedule test helper */
+function inSchedule(cfg){
+  if (!cfg.addSchedule) return true;
+  try {
+    const now = new Date();
+    if (cfg.startAt) {
+      const s = new Date(cfg.startAt);
+      if (now < s) return false;
+    }
+    if (cfg.endAt) {
+      const e = new Date(cfg.endAt);
+      if (now > e) return false;
+    }
+    return true;
+  } catch (e) { return true; }
+}
+
+/* Build embed snippet */
+function buildEmbed(cfg){
+  const json = JSON.stringify(cfg);
+  const b64 = btoa(encodeURIComponent(json));
+  // loader placeholder - user must replace with hosted loader.js URL
+  const loader = 'https://yourdomain.com/popup-loader.js';
+  return `<script id="smart-popup" data-config="${b64}" src="${loader}" defer></script>`;
+}
+
+/* Build small preview within the right panel (not overlay) to give quick snapshot */
+function buildPanelSnapshot(cfg){
+  const snap = document.createElement('div');
+  snap.style.width='90%';
+  snap.style.maxWidth='520px';
+  snap.style.background = cfg.popupBg || '#fff';
+  snap.style.borderRadius='12px';
+  snap.style.padding='14px';
+  snap.style.boxShadow='0 12px 40px rgba(6,18,40,0.06)';
+  snap.style.color = cfg.textColor || '#111';
+
+  const hdr = document.createElement('div');
+  hdr.innerHTML = `<div style="font-weight:800;color:${cfg.headlineColor};font-size:18px">${cfg.headline}</div>
+                   <div style="margin-top:8px;color:${cfg.textColor};font-size:14px">${cfg.text}</div>`;
+  snap.appendChild(hdr);
+  if (cfg.mediaUrl && cfg.mediaType !== 'none') {
+    const m = document.createElement('div'); m.style.marginTop='10px';
+    if ((cfg.mediaUrl.match && cfg.mediaUrl.match(/\.mp4($|\?)/i)) || (cfg.mediaUrl.startsWith && cfg.mediaUrl.startsWith('data:video'))) {
+      m.innerHTML = `<video src="${cfg.mediaUrl}" controls style="width:100%;border-radius:8px"></video>`;
+    } else {
+      m.innerHTML = `<img src="${cfg.mediaUrl}" style="width:100%;border-radius:8px">`;
+    }
+    snap.appendChild(m);
+  }
+  if (cfg.buttonText) {
+    const a = document.createElement('a');
+    a.textContent = cfg.buttonText;
+    a.href = cfg.buttonLink || '#';
+    a.style.display = 'inline-block';
+    a.style.padding = '8px 12px';
+    a.style.marginTop = '12px';
+    a.style.borderRadius = '8px';
+    a.style.color = cfg.buttonTextColor;
+    a.style.background = cfg.buttonBgColor;
+    a.style.textDecoration = 'none';
+    snap.appendChild(a);
+  }
+  return snap;
+}
+
+/* Render preview-area snapshot and embed snippet */
+function buildEmbedAndPreviewArea(){
+  const cfg = getConfig();
+  const area = $.livePreview;
+  area.innerHTML = '';
+  // if not in schedule show notice
+  if (!inSchedule(cfg)) {
+    const s = document.createElement('div'); s.className='status'; s.textContent='Out of schedule — will not show until scheduled';
+    area.appendChild(s);
+  } else {
+    area.appendChild(buildPanelSnapshot(cfg));
+  }
+  $.embedCode.textContent = buildEmbed(cfg);
+}
+
+/* Interactive overlay preview (centered) */
+let overlayEl = null;
+function openOverlayPreview(cfg){
+  // if not in schedule, show notice and return
+  if (!inSchedule(cfg)) {
+    alert('Popup is out of schedule — will not show until scheduled.');
+    return;
+  }
+
+  // visibility DEVICE checks
+  function isMobile(){ return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
+  if (cfg.hideDesktop && !isMobile()) { alert('This popup is set to hide on desktop.'); return; }
+  if (cfg.hideMobile && isMobile()) { alert('This popup is set to hide on mobile.'); return; }
+
+  // prevent multiples
+  if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
+
+  overlayEl = document.cr
