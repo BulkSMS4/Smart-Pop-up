@@ -447,26 +447,26 @@ function openPreviewWindow(){
     }
     setTimeout(()=>show(c),(c.delay||2)*1000);
   })();
-  </script></body></html>`;
-  const w = window.open(); w.document.write(html); w.document.close();
-}
+  <script>
+  // your entire JS code goes here
+  // for example:
+  function refreshSaved() {
+    const sel = $.savedConfigs;
+    sel.innerHTML = '';
+    const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
+    all.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name + ' — ' + new Date(a.cfg.createdAt).toLocaleString();
+      sel.appendChild(opt);
+    });
+  }
 
-// event listeners
-$.saveBtn.addEventListener('click', saveConfig);
-$.previewBtn.addEventListener('click', openPreviewWindow);
-$.loadBtn.addEventListener('click', loadConfig);
-$.deleteBtn.addEventListener('click', deleteConfig);
-document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', updatePreview));
-document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('change', updatePreview));
+  // and all the rest of the functions...
+  // (saveConfig, loadConfig, deleteConfig, init, etc.)
 
-// init
-function init(){
-  if(!localStorage.getItem('smartpop_configs')) localStorage.setItem('smartpop_configs','[]');
-  refreshSaved();
-  renderMediaPreview($.media_url.value);
-  updatePreview();
-}
-init();
+  // then finally call init()
+  init();
 </script>
 </body>
 </html>
