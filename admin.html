@@ -3,229 +3,357 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Popup Admin — Full Custom (Save & Embed)</title>
+<title>SmartPopup — Admin Builder</title>
 <link href="https://unicons.iconscout.com/release/v3.0.3/css/line.css" rel="stylesheet">
 <style>
   :root{
-    --bg:#f4f6fb; --card:#fff; --accent:#0b5cff; --muted:#667085; --radius:12px;
-    --glass: rgba(255,255,255,0.6);
+    --page-bg:#f3f6fb; --card:#fff; --accent:#0b5cff; --muted:#667085; --panel-border:#e6eefc; --radius:12px;
+    --shadow: 0 10px 30px rgba(9,20,40,0.06);
   }
   *{box-sizing:border-box}
-  body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; margin:0; background:linear-gradient(180deg,#f7fafc,#eef4ff); color:#0f172a;}
-  header{background:linear-gradient(90deg,#06122a,#0b2146); color:white; padding:16px 20px; display:flex; align-items:center; gap:12px;}
-  header h1{margin:0;font-size:18px}
-  .container{max-width:1200px;margin:20px auto;padding:18px;display:grid;grid-template-columns:380px 1fr;gap:18px}
-  .card{background:var(--card); border-radius:var(--radius); box-shadow:0 10px 30px rgba(11,22,45,0.06); padding:16px}
-  label{display:block;margin-top:12px;font-weight:700;color:#0b1224}
-  .small{font-size:13px;color:var(--muted); margin-top:6px}
-  input[type=text], input[type=url], input[type=number], textarea, select, input[type=datetime-local], input[type=date], input[type=time]{
-    width:100%; padding:10px; margin-top:8px; border-radius:10px; border:1px solid #e6eefc; font-size:14px; background:#fbfdff;
+  body{
+    margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;background:var(--page-bg);color:#0b1224;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   }
-  .row{display:flex; gap:10px; align-items:center; margin-top:8px}
-  .btn{padding:10px 14px; border-radius:10px; background:var(--accent); color:white; border:none; cursor:pointer}
-  .btn.ghost{background:transparent; color:var(--accent); border:1px solid rgba(11,92,255,0.12)}
-  .media-preview{margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid #eef6ff;padding:8px}
+  header{
+    background:linear-gradient(90deg,#06122a,#0b2146);
+    color:white;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 8px rgba(2,6,23,0.08);
+  }
+  header h1{margin:0;font-size:17px;font-weight:700}
+  header .sub{font-size:13px;color:rgba(255,255,255,0.88);font-weight:600}
+
+  .wrap{max-width:1200px;margin:20px auto;padding:18px;display:grid;grid-template-columns:460px 1fr;gap:18px}
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--panel-border);padding:16px;box-shadow:var(--shadow)}
+  .section-title{font-weight:800;margin:0 0 10px 0;font-size:15px;color:#071232}
+  label{display:block;margin-top:10px;font-weight:700;color:#10203a;font-size:13px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  input[type=text], input[type=url], input[type=number], textarea, select, input[type=datetime-local]{
+    width:100%;padding:10px;margin-top:8px;border-radius:9px;border:1px solid #e9f2ff;background:#fbfdff;font-size:14px;color:#0b1224;
+  }
+  input[type=color]{height:36px;width:56px;border:none;padding:0;background:transparent}
+  .small{font-size:13px;color:var(--muted)}
+  .row{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .row-between{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .btn{padding:9px 12px;border-radius:9px;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,92,255,0.08)}
+  .media-box{border-radius:10px;padding:10px;border:1px solid #eef6ff;background:#fbfdff;margin-top:8px;display:flex;align-items:center;justify-content:center;min-height:92px}
+  .media-box img, .media-box video{max-width:100%; display:block; border-radius:8px}
+  .delete-link{display:block;color:#e02424;margin-top:8px;cursor:pointer;font-weight:700;text-decoration:none;font-size:13px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .preview-area{min-height:420px;display:flex;align-items:center;justify-content:center}
   .codebox{background:#0b1220;color:#d1d5db;padding:12px;border-radius:10px;word-break:break-all;font-family:monospace}
-  .toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
-  .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-  .pos-grid button{padding:10px;border-radius:8px;border:1px dashed #e6eefc;background:transparent;cursor:pointer}
-  footer{margin-top:10px;color:var(--muted);font-size:13px}
-  .hint{font-size:12px;color:#8b93a7;margin-top:6px}
-  .flex{display:flex;gap:8px}
-  .inline{display:inline-flex;align-items:center;gap:8px}
-  .status{padding:8px;border-radius:8px;background:#f3f7ff;color:#0b5cff;font-weight:600}
+  footer{margin-top:12px;font-size:13px;color:var(--muted)}
+  .status{padding:8px;border-radius:8px;background:#f3f7ff;color:var(--accent);font-weight:700}
+  .label-inline{display:inline-flex;gap:8px;align-items:center}
+  .muted{color:var(--muted);font-size:13px}
+  @media (max-width:1040px){ .wrap{grid-template-columns:1fr;padding:12px} }
 </style>
 </head>
 <body>
-<header><h1>Popup Admin — Schedule, Design & Generate Embed</h1></header>
+<header>
+  <div>
+    <h1>SmartPopup — Builder</h1>
+    <div class="sub">Design, test and export your popup</div>
+  </div>
+  <div class="sub">No branding • Copy embed and host loader yourself</div>
+</header>
 
-<div class="container">
-  <div class="card" id="left">
-    <h3>Popup Configuration</h3>
-
-    <label><input type="checkbox" id="add_schedule"> Add Schedule</label>
-    <div id="schedule_block" style="display:none;margin-top:8px">
-      <label>Start (local)</label>
-      <input id="start_dt" type="datetime-local">
-      <label>End (local)</label>
-      <input id="end_dt" type="datetime-local">
-      <div class="small">If current time is outside start-end the popup won't show.</div>
-    </div>
-
-    <label>Header design (headline)</label>
-    <input id="headline" type="text" placeholder="🔥 15% OFF SALE" value="🔥 15% OFF SALE">
-    <div class="row">
-      <label style="margin:0">Header Text Color</label>
-      <input id="headline_color" type="color" value="#111827" style="margin-left:auto">
-    </div>
-
-    <label>Text design</label>
-    <textarea id="text" rows="3">Up to 15% off for limited time and on selected items. plus free shipping for the first 100 buyers</textarea>
-    <div class="row">
-      <label style="margin:0">Text Color</label>
-      <input id="text_color" type="color" value="#374151" style="margin-left:auto">
-    </div>
-
-    <label>Button design</label>
-    <input id="button_text" type="text" placeholder="Keep this empty to hide the button" value="Get the discount now!">
-    <div class="small">Link (example: https://your-site.com/...)</div>
-    <input id="button_link" type="url" placeholder="https://example.com" value="https://example.com">
-
-    <label>Action Type</label>
-    <select id="action_type">
-      <option value="newtab">Open in new tab</option>
-      <option value="sametab">Open in same tab</option>
-      <option value="close">Close popup</option>
-    </select>
-
-    <div class="row" style="margin-top:8px">
-      <label style="margin:0">Button Text Color</label>
-      <input id="button_text_color" type="color" value="#ffffff" style="margin-left:auto">
-    </div>
-    <div class="row">
-      <label style="margin:0">Button Background Color</label>
-      <input id="button_bg_color" type="color" value="#0b5cff" style="margin-left:auto">
-    </div>
-
-    <label style="margin-top:12px">Image design — Addition</label>
-    <select id="media_type">
-      <option value="image">Image</option>
-      <option value="video">Video (mp4)</option>
-      <option value="icon">Icon (emoji/text)</option>
-      <option value="none">None</option>
-    </select>
-
-    <label style="margin-top:8px">Position</label>
-    <select id="position">
-      <option value="center">Center</option>
-      <option value="top-cover">Top-Cover</option>
-      <option value="top">Top</option>
-      <option value="right-cover">Right Cover</option>
-      <option value="left-cover">Left Cover</option>
-      <option value="bottom">Bottom slide-in</option>
-    </select>
-
-    <label style="margin-top:10px">File (image or mp4 URL) — recommended 1100x600</label>
-    <input id="media_url" type="url" placeholder="https://your-site.com/banner.jpg or .mp4">
-    <div class="file-row" style="display:flex;gap:8px;align-items:center;margin-top:8px">
-      <input id="media_upload" type="file" accept="image/*,video/mp4">
-      <button id="media_delete" class="btn ghost" style="padding:8px">Delete</button>
-      <div class="small">Recommended size: 1100x600</div>
-    </div>
-    <div id="mediaPreview" class="media-preview"></div>
-
-    <label style="margin-top:10px">Image redirect (link)</label>
-    <input id="media_link" type="url" placeholder="https://your-site.com/...">
-
-    <label style="margin-top:12px">Popup design - Popup background color</label>
-    <input id="popup_bg" type="color" value="#ffffff">
-
-    <label style="margin-top:8px">Close button design</label>
-    <div class="row">
-      <label><input id="show_close" type="checkbox" checked> Show close button</label>
-      <label style="margin-left:auto"><input id="no_backdrop_close" type="checkbox"> Don't hide on backdrop click</label>
-    </div>
-
-    <label style="margin-top:12px">Visibility</label>
-    <div class="row">
-      <label><input id="visible_all" type="checkbox" checked> Visible on all devices</label>
-    </div>
-    <div class="row" style="margin-top:6px">
-      <label><input id="hide_desktop" type="checkbox"> Hide on desktop</label>
-      <label style="margin-left:auto"><input id="hide_mobile" type="checkbox"> Hide on mobile</label>
-    </div>
-
-    <label style="margin-top:12px">Popup Delay (seconds)</label>
-    <input id="delay" type="number" min="0" value="2">
-
-    <label style="margin-top:12px">Popup Appearance</label>
-    <div class="row">
-      <label><input id="freq_toggle" type="checkbox"> Show popup with specific frequency</label>
-      <label style="margin-left:auto"><input id="every_load" type="checkbox"> Show popup on every page load</label>
-    </div>
-
-    <label style="margin-top:8px">Popup Frequency (set -1 to disable, 0 once, 1+ every N days)</label>
-    <input id="frequency" type="number" value="1" min="-1" step="1">
-
-    <div style="margin-top:14px;display:flex;gap:8px;">
-      <button id="saveBtn" class="btn">Generate Embed Code</button>
-      <button id="previewBtn" class="btn ghost">Open Preview</button>
-    </div>
-
-    <div style="margin-top:12px">
-      <label>Saved configs</label>
-      <select id="savedConfigs" style="width:100%;margin-top:8px"></select>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button id="loadBtn" class="btn ghost">Load</button>
-        <button id="deleteBtn" class="btn ghost">Delete</button>
+<div class="wrap">
+  <!-- LEFT: controls -->
+  <div>
+    <!-- Schedule -->
+    <div class="card">
+      <div class="section-title">Schedule</div>
+      <label class="label-inline"><input id="add_schedule" type="checkbox"> Add Schedule</label>
+      <div id="schedule_block" style="display:none;margin-top:10px">
+        <label>Start Date & time</label>
+        <input id="start_dt" type="datetime-local">
+        <label style="margin-top:8px">End Date & time</label>
+        <input id="end_dt" type="datetime-local">
+        <div class="hint">Popup will only show between start and end when schedule is enabled.</div>
       </div>
     </div>
 
-    <div style="margin-top:12px" class="hint">Note: embed snippet contains Base64 JSON config. Replace loader URL with your hosted <strong>popup-loader.js</strong> before pasting on your sites.</div>
-  </div>
+    <!-- Header & Text -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Header design</div>
+      <label>Header text</label>
+      <input id="headline" type="text" value="🔥 15% OFF SALE">
+      <div class="row" style="margin-top:8px">
+        <div style="flex:1"><label style="margin:0;font-weight:600;font-size:12px">Text color</label></div>
+        <input id="headline_color" type="color" value="#111827">
+      </div>
 
-  <div class="card" id="right">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h3 style="margin:0">Preview & Embed</h3>
-      <div class="status" id="previewStatus">Preview Ready</div>
+      <div style="margin-top:12px">
+        <div class="section-title" style="font-size:14px;margin-bottom:6px">Text design</div>
+        <textarea id="text" rows="3">Up to 15% off for limited time and on selected items. plus free shipping for the first 100 buyers</textarea>
+        <div class="row" style="margin-top:8px">
+          <div style="flex:1"><label style="margin:0;font-weight:600;font-size:12px">Text color</label></div>
+          <input id="text_color" type="color" value="#374151">
+        </div>
+      </div>
     </div>
 
-    <div id="livePreview" style="min-height:360px;margin-top:12px;display:flex;align-items:center;justify-content:center"></div>
+    <!-- Button design -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Button design</div>
+      <label>Button Text (leave empty to hide)</label>
+      <input id="button_text" type="text" value="Get the discount now!">
+      <div class="hint" style="margin-top:8px">Link (example):</div>
+      <input id="button_link" type="url" placeholder="https://your-site.com/...">
 
-    <h4 style="margin-top:12px">Embed Snippet (copy & paste to your site)</h4>
-    <div id="embedCode" class="codebox" style="min-height:72px"></div>
+      <label style="margin-top:10px">Action Type</label>
+      <select id="action_type">
+        <option value="newtab">Open in new tab</option>
+        <option value="sametab">Open in same tab</option>
+        <option value="close">Close popup</option>
+      </select>
 
-    <h4 style="margin-top:12px">Usage</h4>
-    <ol class="small">
-      <li>Host <strong>popup-loader.js</strong> (provided) on a public URL (GitHub Pages recommended).</li>
-      <li>Click <strong>Generate Embed Code</strong> and copy the snippet. Replace the loader URL placeholder with your hosted loader URL.</li>
-      <li>Paste the snippet into any page you want the popup to appear on.</li>
-    </ol>
-    <footer>Saved configs are stored in localStorage. For central control you can modify the loader to fetch a hosted JSON config — ask me if you want that.</footer>
+      <div class="two-col" style="margin-top:10px">
+        <div>
+          <label style="margin:0;font-weight:600;font-size:12px">Text color</label>
+          <input id="button_text_color" type="color" value="#ffffff" style="margin-top:8px">
+        </div>
+        <div>
+          <label style="margin:0;font-weight:600;font-size:12px">Background color</label>
+          <input id="button_bg_color" type="color" value="#0b5cff" style="margin-top:8px">
+        </div>
+      </div>
+    </div>
+
+    <!-- Image design -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Image design</div>
+
+      <div class="two-col">
+        <div>
+          <label style="margin:0;font-weight:600;font-size:13px">Addition</label>
+          <select id="media_type">
+            <option value="image">Image or Video (mp4)</option>
+            <option value="icon">Icon (emoji/text)</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="margin:0;font-weight:600;font-size:13px">Position</label>
+          <select id="position">
+            <option value="top-cover">Top-Cover</option>
+            <option value="top">Top</option>
+            <option value="right-cover">Right Cover</option>
+            <option value="left-cover">Left Cover</option>
+            <option value="center">Center</option>
+            <option value="bottom">Bottom slide-in</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div>
+          <label style="font-size:13px;margin:0">File<br><span class="hint">Recommended size: 1100x600</span></label>
+          <div id="mediaPreview" class="media-box"><div style="color:var(--muted)">No image / video</div></div>
+
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <input id="media_upload" type="file" accept="image/*,video/mp4">
+            <button id="media_delete" class="btn ghost" style="padding:8px 10px">Delete</button>
+          </div>
+          <a id="delete_image_link" class="delete-link" style="display:none">Delete image</a>
+        </div>
+
+        <div>
+          <label style="font-size:13px;margin:0">Link</label>
+          <input id="media_link" type="url" placeholder="https://your-site.com/...">
+          <div class="hint" style="margin-top:10px">Enter a destination URL for the image (click will open link).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup design -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Popup design</div>
+      <label>Popup background color</label>
+      <input id="popup_bg" type="color" value="#ffffff">
+    </div>
+
+    <!-- Close & Visibility -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Close button design</div>
+      <div class="row-between" style="margin-top:8px">
+        <label class="label-inline"><input id="show_close" type="checkbox" checked> Show close button</label>
+        <label class="label-inline"><input id="no_backdrop_close" type="checkbox"> Don't hide popup on backdrop click</label>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="section-title" style="font-size:14px;margin-top:6px">Visibility</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <label><input id="visible_all" type="checkbox" checked> Visible on all devices</label>
+        <label><input id="hide_desktop" type="checkbox"> Hide on desktop</label>
+        <label><input id="hide_mobile" type="checkbox"> Hide on mobile</label>
+      </div>
+    </div>
+
+    <!-- Delay & Frequency -->
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">Popup Delay & Appearance</div>
+      <label>Show popup after X seconds</label>
+      <input id="delay" type="number" min="0" value="2">
+
+      <div style="margin-top:10px" class="row-between">
+        <label><input id="freq_toggle" type="checkbox"> Show popup with specific frequency...</label>
+        <label><input id="every_load" type="checkbox"> Show popup on every page load</label>
+      </div>
+
+      <div id="freq_controls" style="margin-top:10px">
+        <label>Popup Frequency</label>
+        <input id="frequency" type="number" value="1" min="-1" step="1">
+        <div class="hint">Set -1 to disable, 0 = display once, 1+ = every N days</div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button id="generateBtn" class="btn">Generate Embed Code</button>
+        <button id="previewWindowBtn" class="btn ghost">Open Preview Window</button>
+        <button id="saveBtn" class="btn ghost">Save Config</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Saved configs</label>
+        <select id="savedConfigs" style="width:100%;margin-top:8px"></select>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="loadBtn" class="btn ghost">Load</button>
+          <button id="deleteBtn" class="btn ghost">Delete</button>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">After generating embed, replace loader placeholder URL with your hosted <code>popup-loader.js</code>.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: live preview & embed -->
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="section-title">Live Preview</div>
+          <div class="hint">Interactive popup appears inside this preview area for testing.</div>
+        </div>
+        <div id="previewStatus" class="status">Preview Ready</div>
+      </div>
+
+      <div id="livePreview" class="preview-area" style="margin-top:12px"></div>
+
+      <div style="margin-top:12px">
+        <h4 style="margin:0 0 10px 0">Embed Snippet</h4>
+        <div id="embedCode" class="codebox" style="min-height:72px"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <h4 style="margin:0 0 6px 0">Usage</h4>
+        <ol class="hint" style="padding-left:18px;margin:0">
+          <li>Host <strong>popup-loader.js</strong> publicly (GitHub Pages recommended).</li>
+          <li>Click <strong>Generate Embed Code</strong>, copy snippet, then replace <code>https://yourdomain.com/popup-loader.js</code> with loader URL.</li>
+          <li>Paste snippet on pages where you want the popup to appear.</li>
+        </ol>
+      </div>
+      <footer>Configs stored locally in browser. Ask if you want central hosting or smaller media handling.</footer>
+    </div>
   </div>
 </div>
 
 <script>
-/* Admin JS: live preview, schedule, save/load, build embed (Base64) */
+/* SmartPopup Admin — final behaviors requested */
+
+/* Utility */
 const $ = id => document.getElementById(id);
 
-// show/hide schedule block
-$.add_schedule.addEventListener('change', ()=> {
-  document.getElementById('schedule_block').style.display = $.add_schedule.checked ? 'block' : 'none';
-  updatePreview();
-});
+/* UI rules */
 
-// media upload -> dataURL preview
-$.media_upload.addEventListener('change', (e) => {
+// show_close logic: if unchecked => uncheck & disable no_backdrop_close
+function applyShowCloseRule() {
+  if (!$.show_close.checked) {
+    $.no_backdrop_close.checked = false;
+    $.no_backdrop_close.disabled = true;
+  } else {
+    $.no_backdrop_close.disabled = false;
+  }
+}
+
+// Frequency visibility logic
+function updateFrequencyVisibility() {
+  if ($.every_load.checked) {
+    document.getElementById('freq_controls').style.display = 'none';
+  } else {
+    document.getElementById('freq_controls').style.display = $.freq_toggle.checked ? 'block' : 'none';
+  }
+}
+
+// Schedule visibility
+function applyScheduleVisibility(){
+  document.getElementById('schedule_block').style.display = $.add_schedule.checked ? 'block' : 'none';
+}
+
+/* Media upload handling (direct upload => dataURL stored in hidden input media_url) */
+/* Note: no UI mention of 'data URL' - hidden use only */
+(function mediaSetup(){
+  // we'll use a hidden input to store data (create if not present)
+  let hidden = document.createElement('input'); hidden.type='hidden'; hidden.id='media_url';
+  document.body.appendChild(hidden);
+})();
+
+function renderMediaPreview(url){
+  const p = $.mediaPreview;
+  p.innerHTML = '';
+  if(!url){
+    p.innerHTML = '<div style="color:var(--muted)">No image / video</div>';
+    $.delete_image_link.style.display = 'none';
+    return;
+  }
+  $.delete_image_link.style.display = 'block';
+  // check video
+  if(url.startsWith('data:video') || url.match(/\.mp4($|\?)/i)){
+    const v = document.createElement('video');
+    v.src = url;
+    v.controls = true;
+    v.style.width = '100%';
+    p.appendChild(v);
+  } else {
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.width = '100%';
+    img.style.borderRadius = '8px';
+    p.appendChild(img);
+  }
+}
+
+// file -> dataURL
+$.media_upload.addEventListener('change', (e)=>{
   const f = e.target.files[0];
   if(!f) return;
-  const r = new FileReader();
-  r.onload = function(evt){
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    // store dataURL in hidden field
     $.media_url.value = evt.target.result;
     renderMediaPreview(evt.target.result);
     updatePreview();
   };
-  r.readAsDataURL(f);
+  reader.readAsDataURL(f);
 });
+
+// delete image
 $.media_delete.addEventListener('click', ()=>{
   $.media_url.value = '';
   $.media_upload.value = '';
   renderMediaPreview('');
   updatePreview();
 });
+$.delete_image_link.addEventListener('click', ()=>{
+  $.media_url.value = '';
+  $.media_upload.value = '';
+  renderMediaPreview('');
+  updatePreview();
+});
 
-function renderMediaPreview(url){
-  const p = $.mediaPreview;
-  p.innerHTML = '';
-  if(!url) return;
-  if(url.startsWith('data:video') || url.match(/\.mp4($|\?)/i)){
-    const v = document.createElement('video'); v.src = url; v.controls = true; v.style.width='100%'; p.appendChild(v);
-  } else {
-    const i = document.createElement('img'); i.src = url; i.style.width='100%'; i.style.display='block'; i.style.borderRadius='8px'; p.appendChild(i);
-  }
-}
-
-// build config from form
+/* Config builder/readers */
 function getConfig(){
   return {
     addSchedule: $.add_schedule.checked,
@@ -237,12 +365,12 @@ function getConfig(){
     textColor: $.text_color.value,
     buttonText: $.button_text.value.trim(),
     buttonLink: $.button_link.value.trim(),
-    actionType: $.action_type.value, // newtab/sametab/close
+    actionType: $.action_type.value,
     buttonTextColor: $.button_text_color.value,
     buttonBgColor: $.button_bg_color.value,
     mediaType: $.media_type.value,
     position: $.position.value,
-    mediaUrl: $.media_url.value.trim(),
+    mediaUrl: $.media_url.value || null, // dataURL or empty
     mediaLink: $.media_link.value.trim(),
     popupBg: $.popup_bg.value,
     showClose: $.show_close.checked,
@@ -258,96 +386,181 @@ function getConfig(){
   };
 }
 
-// format schedule status
-function isNowInSchedule(cfg){
+/* Schedule check helper */
+function inSchedule(cfg){
   if(!cfg.addSchedule) return true;
-  try{
+  try {
     const now = new Date();
-    const s = cfg.startAt ? new Date(cfg.startAt) : null;
-    const e = cfg.endAt ? new Date(cfg.endAt) : null;
-    if(s && now < s) return false;
-    if(e && now > e) return false;
+    if(cfg.startAt){
+      const s = new Date(cfg.startAt);
+      if(now < s) return false;
+    }
+    if(cfg.endAt){
+      const e = new Date(cfg.endAt);
+      if(now > e) return false;
+    }
     return true;
-  }catch(e){ return true; }
+  } catch(e) { return true; }
 }
 
-// update live preview
-function updatePreview(){
-  const c = getConfig();
-  const out = $.livePreview;
-  out.innerHTML = '';
+/* Live preview — interactive popup inside preview area */
+let previewOverlayTimeout = null;
+let currentPreviewOverlay = null;
 
-  // show message if schedule prevents showing
-  if(!isNowInSchedule(c)){
-    out.innerHTML = '<div class="status" style="background:#fff6f6;color:#b42318">Out of schedule — will not show until the scheduled time</div>';
-    $.embedCode.textContent = buildEmbed(c);
+function clearCurrentPreview() {
+  if(previewOverlayTimeout) { clearTimeout(previewOverlayTimeout); previewOverlayTimeout = null; }
+  if(currentPreviewOverlay && currentPreviewOverlay.parentNode) {
+    currentPreviewOverlay.parentNode.removeChild(currentPreviewOverlay);
+    currentPreviewOverlay = null;
+  }
+  // also clear preview area main children (we keep container)
+  const live = $.livePreview;
+  live.innerHTML = '';
+}
+
+function renderPreviewPopup(cfg){
+  clearCurrentPreview();
+
+  const previewArea = $.livePreview;
+  // show schedule status if not in schedule
+  if(!inSchedule(cfg)){
+    const box = document.createElement('div');
+    box.className = 'status';
+    box.textContent = 'Out of schedule — will not show until scheduled';
+    previewArea.appendChild(box);
     return;
   }
 
-  // preview box
-  const wrapper = document.createElement('div');
-  wrapper.style.width='100%';
-  wrapper.style.display='flex';
-  wrapper.style.justifyContent='center';
-  wrapper.style.alignItems = (c.position === 'bottom' ? 'flex-end' : (c.position === 'top' || c.position === 'top-cover' ? 'flex-start' : 'center'));
-  const box = document.createElement('div');
-  box.style.width='100%';
-  box.style.maxWidth = c.position === 'top-cover' ? '100%' : '720px';
-  box.style.background = c.popupBg;
-  box.style.color = c.textColor;
-  box.style.padding = '18px';
-  box.style.borderRadius = c.position === 'top-cover' ? '0 0 12px 12px' : '12px';
-  box.style.boxShadow = '0 14px 40px rgba(6,18,40,0.08)';
-  box.style.position = 'relative';
-  // header/text
-  const h = document.createElement('div');
-  h.innerHTML = `<div style="font-size:18px;font-weight:800;color:${c.headlineColor}">${c.headline}</div><div style="margin-top:8px;color:${c.textColor}">${c.text}</div>`;
-  box.appendChild(h);
+  // create container for preview (mimic a page area)
+  const container = document.createElement('div');
+  container.style.position = 'relative';
+  container.style.width = '100%';
+  container.style.height = '420px';
+  container.style.background = '#f7fafc';
+  container.style.borderRadius = '8px';
+  container.style.overflow = 'hidden';
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  previewArea.appendChild(container);
 
-  // media
-  if(c.mediaUrl && c.mediaType !== 'none'){
-    const mwrap = document.createElement('div'); mwrap.style.marginTop='12px';
-    if(c.mediaType === 'video' || c.mediaUrl.match(/\.mp4($|\?)/i) || c.mediaUrl.startsWith('data:video')){
-      const v = document.createElement('video'); v.src = c.mediaUrl; v.controls = true; v.style.width='100%'; mwrap.appendChild(v);
-    } else if(c.mediaType === 'icon'){
-      const span = document.createElement('div'); span.style.fontSize='42px'; span.textContent = c.mediaUrl || '⭐'; mwrap.appendChild(span);
-    } else {
-      const img = document.createElement('img'); img.src = c.mediaUrl; img.style.width='100%'; img.style.borderRadius='8px'; mwrap.appendChild(img);
+  // show popup after configured delay
+  previewOverlayTimeout = setTimeout(() => {
+    const overlay = document.createElement('div');
+    overlay.style.position = 'absolute';
+    overlay.style.inset = '0';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = (cfg.position === 'bottom' ? 'flex-end' : (cfg.position === 'top' || cfg.position === 'top-cover' ? 'flex-start' : 'center'));
+    overlay.style.justifyContent = (cfg.position === 'right-cover' ? 'flex-end' : (cfg.position === 'left-cover' ? 'flex-start' : 'center'));
+    overlay.style.background = 'rgba(0,0,0,0.36)';
+    overlay.style.zIndex = 999;
+    container.appendChild(overlay);
+
+    // popup box
+    const box = document.createElement('div');
+    box.style.background = cfg.popupBg || '#fff';
+    box.style.color = cfg.textColor || '#111';
+    box.style.borderRadius = (cfg.position === 'top-cover') ? '0 0 12px 12px' : '12px';
+    box.style.maxWidth = (cfg.position === 'top-cover' ? '100%' : '520px');
+    box.style.width = (cfg.position === 'top-cover' ? '100%' : '86%');
+    box.style.padding = '18px';
+    box.style.boxSizing = 'border-box';
+    box.style.margin = (cfg.position === 'bottom' ? '20px' : '0');
+    box.style.position = 'relative';
+    box.style.overflow = 'hidden';
+    box.style.boxShadow = '0 18px 60px rgba(2,14,40,0.12)';
+
+    // headline + text
+    const hdr = document.createElement('div');
+    hdr.innerHTML = `<div style="font-weight:800;color:${cfg.headlineColor};font-size:18px">${cfg.headline}</div>
+                     <div style="margin-top:8px;color:${cfg.textColor};font-size:14px;line-height:1.4">${cfg.text}</div>`;
+    box.appendChild(hdr);
+
+    // media
+    if(cfg.mediaUrl && cfg.mediaType !== 'none'){
+      const mwrap = document.createElement('div'); mwrap.style.marginTop = '12px';
+      if(cfg.mediaType === 'video' || (cfg.mediaUrl.match && cfg.mediaUrl.match(/\.mp4($|\?)/i)) || (cfg.mediaUrl && cfg.mediaUrl.startsWith('data:video'))){
+        mwrap.innerHTML = `<video src="${cfg.mediaUrl}" controls style="width:100%;border-radius:8px"></video>`;
+      } else if(cfg.mediaType === 'icon'){
+        mwrap.innerHTML = `<div style="font-size:42px">${cfg.mediaUrl || '⭐'}</div>`;
+      } else {
+        if (cfg.mediaLink) {
+          mwrap.innerHTML = `<a href="${cfg.mediaLink}" target="_blank" rel="noopener noreferrer"><img src="${cfg.mediaUrl}" style="width:100%;border-radius:8px;display:block"></a>`;
+        } else {
+          mwrap.innerHTML = `<img src="${cfg.mediaUrl}" style="width:100%;border-radius:8px;display:block">`;
+        }
+      }
+      box.appendChild(mwrap);
     }
-    box.appendChild(mwrap);
-  }
 
-  // button
-  if(c.buttonText){
-    const a = document.createElement('a');
-    a.textContent = c.buttonText;
-    a.href = c.buttonLink || '#';
-    a.style.display = 'inline-block';
-    a.style.padding = '10px 14px';
-    a.style.marginTop = '12px';
-    a.style.borderRadius = '8px';
-    a.style.color = c.buttonTextColor;
-    a.style.background = c.buttonBgColor;
-    a.style.textDecoration = 'none';
-    a.target = (c.actionType === 'newtab') ? '_blank' : '_self';
-    box.appendChild(a);
-  }
+    // CTA
+    if(cfg.buttonText){
+      const a = document.createElement('a');
+      a.textContent = cfg.buttonText;
+      a.href = cfg.buttonLink || '#';
+      a.style.display = 'inline-block';
+      a.style.padding = '10px 14px';
+      a.style.marginTop = '12px';
+      a.style.borderRadius = '8px';
+      a.style.color = cfg.buttonTextColor;
+      a.style.background = cfg.buttonBgColor;
+      a.style.textDecoration = 'none';
+      a.target = (cfg.actionType === 'newtab') ? '_blank' : '_self';
+      if(cfg.actionType === 'close'){
+        a.href = 'javascript:void(0)';
+        a.addEventListener('click', (e)=>{ e.preventDefault(); if(overlay.parentNode) overlay.parentNode.removeChild(overlay); });
+      } else {
+        a.addEventListener('click', ()=>{ if(cfg.actionType === 'newtab' && overlay.parentNode) overlay.parentNode.removeChild(overlay); });
+      }
+      box.appendChild(a);
+    }
 
-  // close symbol
-  if(c.showClose){
-    const cb = document.createElement('div'); cb.style.position='absolute'; cb.style.right='20px'; cb.style.top='20px'; cb.style.fontSize='18px';
-    cb.textContent = '✕';
-    box.appendChild(cb);
-  }
+    // close button
+    if(cfg.showClose){
+      const cb = document.createElement('button');
+      cb.innerHTML = '&#10005;';
+      cb.style.position = 'absolute';
+      cb.style.right = '12px';
+      cb.style.top = '12px';
+      cb.style.border = 'none';
+      cb.style.background = 'transparent';
+      cb.style.fontSize = '18px';
+      cb.style.cursor = 'pointer';
+      cb.addEventListener('click', ()=> { if(overlay.parentNode) overlay.parentNode.removeChild(overlay); });
+      box.appendChild(cb);
+    }
 
-  wrapper.appendChild(box);
-  out.appendChild(wrapper);
+    overlay.appendChild(box);
 
-  // embed code
-  $.embedCode.textContent = buildEmbed(c);
+    // backdrop click behavior
+    if(!cfg.noBackdropClose){
+      overlay.addEventListener('click', function(e){
+        if(e.target === overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      });
+    }
+
+    currentPreviewOverlay = overlay;
+  }, (getConfig().delay || 2) * 1000);
 }
 
-// Build Base64 embed snippet
+/* Update preview and UI states */
+function updatePreview(){
+  // apply UI rules
+  applyShowCloseRule();
+  updateFrequencyVisibility();
+  applyScheduleVisibility();
+
+  // render left media preview if any
+  renderMediaPreview($.media_url.value);
+
+  // render preview popup
+  renderPreviewPopup(getConfig());
+
+  // build embed snippet
+  $.embedCode.textContent = buildEmbed(getConfig());
+}
+
+/* Embed snippet builder */
 function buildEmbed(cfg){
   const json = JSON.stringify(cfg);
   const b64 = btoa(encodeURIComponent(json));
@@ -355,7 +568,7 @@ function buildEmbed(cfg){
   return `<script id="smart-popup" data-config="${b64}" src="${loader}" defer></script>`;
 }
 
-// Save / load configs
+/* Save / Load / Delete configs (clean) */
 function refreshSaved(){
   const sel = $.savedConfigs; sel.innerHTML = '';
   const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
@@ -364,6 +577,7 @@ function refreshSaved(){
     sel.appendChild(opt);
   });
 }
+
 function saveConfig(){
   const cfg = getConfig();
   const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
@@ -372,18 +586,18 @@ function saveConfig(){
   localStorage.setItem('smartpop_configs', JSON.stringify(all));
   refreshSaved();
   updatePreview();
-  alert('Saved config. Copy embed snippet on the right and replace loader URL with your hosted popup-loader.js');
+  alert('Saved config locally. Use Generate Embed Code and replace loader URL before embedding.');
 }
+
 function loadConfig(){
   const id = $.savedConfigs.value;
-  if(!id) return alert('Pick a saved config to load');
+  if(!id) return alert('Choose a saved config to load');
   const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
   const item = all.find(x => x.id === id);
   if(!item) return alert('Not found');
   const c = item.cfg;
-  // populate fields
+  // populate UI
   $.add_schedule.checked = !!c.addSchedule;
-  document.getElementById('schedule_block').style.display = $.add_schedule.checked ? 'block' : 'none';
   $.start_dt.value = c.startAt || '';
   $.end_dt.value = c.endAt || '';
   $.headline.value = c.headline || '';
@@ -396,7 +610,7 @@ function loadConfig(){
   $.button_text_color.value = c.buttonTextColor || '#ffffff';
   $.button_bg_color.value = c.buttonBgColor || '#0b5cff';
   $.media_type.value = c.mediaType || 'image';
-  $.position.value = c.position || 'center';
+  $.position.value = c.position || 'top-cover';
   $.media_url.value = c.mediaUrl || '';
   renderMediaPreview(c.mediaUrl || '');
   $.media_link.value = c.mediaLink || '';
@@ -412,9 +626,10 @@ function loadConfig(){
   $.frequency.value = (c.frequency !== undefined) ? c.frequency : 1;
   updatePreview();
 }
+
 function deleteConfig(){
   const id = $.savedConfigs.value;
-  if(!id) return alert('Pick a saved config to delete');
+  if(!id) return alert('Choose config to delete');
   let all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
   all = all.filter(x => x.id !== id);
   localStorage.setItem('smartpop_configs', JSON.stringify(all));
@@ -422,51 +637,66 @@ function deleteConfig(){
   updatePreview();
 }
 
-// preview window (full demo)
+/* Preview window (separate) for testing */
 function openPreviewWindow(){
   const cfg = getConfig();
   const html = `
   <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
-  <script>window.__SMARTPOPUP_PREVIEW=${JSON.stringify(cfg)}</script>
+  <script>window.__SMARTPOPUP_PREVIEW = ${JSON.stringify(cfg)}</script>
   <script>
   (function(){
     var c = window.__SMARTPOPUP_PREVIEW;
-    // minimal loader behavior for preview
-    function show(c){
-      var overlay=document.createElement('div'); overlay.style.position='fixed'; overlay.style.inset=0; overlay.style.display='flex';
-      overlay.style.alignItems=(c.position==='bottom'?'flex-end':(c.position==='top'||c.position==='top-cover'?'flex-start':'center'));
+    setTimeout(function(){
+      var overlay=document.createElement('div'); overlay.style.position='fixed'; overlay.style.inset=0;
+      overlay.style.display='flex'; overlay.style.alignItems=(c.position==='bottom'?'flex-end':(c.position==='top'||c.position==='top-cover'?'flex-start':'center'));
       overlay.style.justifyContent=(c.position==='right-cover'?'flex-end':(c.position==='left-cover'?'flex-start':'center'));
       overlay.style.background='rgba(0,0,0,0.6)'; overlay.style.zIndex=999999;
       var box=document.createElement('div'); box.style.maxWidth='720px'; box.style.width=c.position==='top-cover'?'100%':'92%';
-      box.style.background=c.popupBg; box.style.color=c.textColor; box.style.padding='18px'; box.style.borderRadius=c.position==='top-cover'?'0 0 12px 12px':'12px';
+      box.style.padding='18px'; box.style.borderRadius=c.position==='top-cover'?'0 0 12px 12px':'12px'; box.style.background=c.popupBg;
       box.innerHTML='<div style="font-weight:800;color:'+c.headlineColor+'">'+c.headline+'</div><div style="margin-top:8px;color:'+c.textColor+'">'+c.text+'</div>';
-      if(c.mediaUrl){ if(c.mediaUrl.match(/\\.mp4($|\\?)/i)||c.mediaType==='video') box.innerHTML += '<div style="margin-top:10px"><video src="'+c.mediaUrl+'" controls style="width:100%"></video></div>'; else box.innerHTML += '<div style="margin-top:10px"><img src="'+c.mediaUrl+'" style="width:100%;border-radius:8px"></div>'; }
+      if(c.mediaUrl){ if(c.mediaUrl.match(/\\.mp4($|\\?)/i) || c.mediaType==='video') box.innerHTML += '<div style="margin-top:10px"><video src="'+c.mediaUrl+'" controls style="width:100%"></video></div>'; else box.innerHTML += '<div style="margin-top:10px"><img src="'+c.mediaUrl+'" style="width:100%;border-radius:8px"></div>'; }
       if(c.buttonText) box.innerHTML += '<div style="margin-top:12px"><a href="'+(c.buttonLink||'#')+'" style="padding:10px 12px;background:'+c.buttonBgColor+';color:'+c.buttonTextColor+';border-radius:8px;text-decoration:none">'+c.buttonText+'</a></div>';
       overlay.appendChild(box); document.body.appendChild(overlay);
       if(!c.noBackdropClose) overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-    }
-    setTimeout(()=>show(c),(c.delay||2)*1000);
+    }, (cfg.delay||2)*1000);
   })();
-  <script>
-  // your entire JS code goes here
-  // for example:
-  function refreshSaved() {
-    const sel = $.savedConfigs;
-    sel.innerHTML = '';
-    const all = JSON.parse(localStorage.getItem('smartpop_configs') || '[]');
-    all.forEach(a => {
-      const opt = document.createElement('option');
-      opt.value = a.id;
-      opt.textContent = a.name + ' — ' + new Date(a.cfg.createdAt).toLocaleString();
-      sel.appendChild(opt);
-    });
-  }
+  </script></body></html>`;
+  const w = window.open(); w.document.write(html); w.document.close();
+}
 
-  // and all the rest of the functions...
-  // (saveConfig, loadConfig, deleteConfig, init, etc.)
+/* Bindings */
+$.show_close.addEventListener('change', ()=>{ applyShowCloseRule(); updatePreview(); });
+$.no_backdrop_close.addEventListener('change', updatePreview);
+$.every_load.addEventListener('change', ()=>{ updateFrequencyVisibility(); updatePreview(); });
+$.freq_toggle.addEventListener('change', ()=>{ updateFrequencyVisibility(); updatePreview(); });
+$.add_schedule.addEventListener('change', ()=>{ applyScheduleVisibility(); updatePreview(); });
 
-  // then finally call init()
-  init();
+// inputs that affect preview
+document.querySelectorAll('input,select,textarea').forEach(el=>{
+  el.addEventListener('input', updatePreview);
+  el.addEventListener('change', updatePreview);
+});
+
+$.generateBtn.addEventListener('click', ()=>{
+  const cfg = getConfig();
+  $.embedCode.textContent = buildEmbed(cfg);
+  alert('Embed snippet generated. Replace loader placeholder URL with your hosted popup-loader.js before embedding.');
+});
+$.previewWindowBtn.addEventListener('click', openPreviewWindow);
+$.saveBtn.addEventListener('click', saveConfig);
+$.loadBtn.addEventListener('click', loadConfig);
+$.deleteBtn.addEventListener('click', deleteConfig);
+
+/* Initialization */
+(function init(){
+  if(!localStorage.getItem('smartpop_configs')) localStorage.setItem('smartpop_configs','[]');
+  refreshSaved();
+  applyShowCloseRule();
+  updateFrequencyVisibility();
+  applyScheduleVisibility();
+  renderMediaPreview($.media_url.value);
+  updatePreview();
+})();
 </script>
 </body>
 </html>
