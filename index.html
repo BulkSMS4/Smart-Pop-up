@@ -1,1 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Popup Builder Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      color: #111;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #2563eb;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 950px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+    h2 {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 0.3rem;
+      margin-top: 2rem;
+      color: #2563eb;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    input[type="text"], input[type="color"], input[type="number"], input[type="url"], input[type="datetime-local"], select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    input[type="checkbox"] {
+      margin-right: 6px;
+      transform: scale(1.2);
+    }
+    .section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .group > div {
+      flex: 1;
+      min-width: 230px;
+    }
+    .preview-box {
+      margin-top: 2rem;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    #embedCode {
+      width: 100%;
+      height: 60px;
+      margin-top: 0.8rem;
+      font-family: monospace;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #1e4fd1;
+    }
+    .hidden { display: none; }
+    .img-preview {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
 
+<header>🔥 Popup Builder Dashboard</header>
+
+<div class="container">
+  
+  <div class="section">
+    <label><input type="checkbox" id="add_schedule"> Add Schedule</label>
+    <div id="schedule_fields" class="hidden">
+      <div class="group">
+        <div>
+          <label>Start Date</label>
+          <input type="datetime-local" id="start_date">
+        </div>
+        <div>
+          <label>End Date</label>
+          <input type="datetime-local" id="end_date">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Header Design</h2>
+    <label>Headline</label>
+    <input type="text" id="headline" value="🔥 15% OFF SALE">
+    <label>Custom Text Color</label>
+    <input type="color" id="headline_color" value="#111827">
+  </div>
+
+  <div class="section">
+    <h2>Text Design</h2>
+    <textarea id="text" rows="3">Up to 15% off for limited time and on selected items. Plus free shipping for the first 100 buyers.</textarea>
+    <label>Custom Text Color</label>
+    <input type="color" id="text_color" value="#374151">
+  </div>
+
+  <div class="section">
+    <h2>Button Design</h2>
+    <label>Button Text</label>
+    <input type="text" id="button_text" value="Get the discount now!">
+    <label>Link <small>https://your-site.com/...</small></label>
+    <input type="url" id="button_link" placeholder="https://example.com">
+    <label>Action Type</label>
+    <select id="action_type">
+      <option value="newtab">Open in new tab</option>
+      <option value="sametab">Open in same tab</option>
+      <option value="close">Close</option>
+    </select>
+    <div class="group">
+      <div>
+        <label>Button Text Color</label>
+        <input type="color" id="button_text_color" value="#ffffff">
+      </div>
+      <div>
+        <label>Button Background Color</label>
+        <input type="color" id="button_bg_color" value="#2563eb">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Image Design</h2>
+    <label>Addition</label>
+    <select id="media_type">
+      <option value="image">Image</option>
+      <option value="video">Video (mp4)</option>
+      <option value="icon">Icon</option>
+      <option value="none">None</option>
+    </select>
+    <label>Position</label>
+    <select id="media_position">
+      <option value="top-cover">Top-Cover</option>
+      <option value="top">Top</option>
+      <option value="right-cover">Right Cover</option>
+      <option value="left-cover">Left Cover</option>
+    </select>
+    <label>File <small>Recommended size: 1100x600</small></label>
+    <input type="file" id="media_file" accept="image/*,video/mp4">
+    <img id="media_preview" class="img-preview hidden">
+    <video id="media_video" class="img-preview hidden" controls></video>
+    <button id="delete_media" class="hidden">Delete</button>
+    <label>Link <small>https://your-site.com/...</small></label>
+    <input type="url" id="media_link" placeholder="https://example.com">
+  </div>
+
+  <div class="section">
+    <h2>Popup Design</h2>
+    <label>Custom Popup Color</label>
+    <input type="color" id="popup_bg" value="#ffffff">
+  </div>
+
+  <div class="section">
+    <h2>Close Button Design</h2>
+    <label><input type="checkbox" id="show_close" checked> Show close button</label>
+    <label><input type="checkbox" id="no_backdrop_close"> Don't hide popup on backdrop click</label>
+  </div>
+
+  <div class="section">
+    <h2>Visibility</h2>
+    <label><input type="checkbox" id="visible_all" checked> Visible on all devices</label>
+    <label><input type="checkbox" id="hide_desktop"> Hide on desktop</label>
+    <label><input type="checkbox" id="hide_mobile"> Hide on mobile</label>
+  </div>
+
+  <div class="section">
+    <h2>Popup Delay</h2>
+    <label>Show Popup after X seconds</label>
+    <input type="number" id="popup_delay" value="2" min="0">
+  </div>
+
+  <div class="section">
+    <h2>Popup Appearance</h2>
+    <label><input type="checkbox" id="specific_frequency"> Show popup with specific frequency...</label>
+    <label><input type="checkbox" id="every_load"> Show popup on every page load</label>
+  </div>
+
+  <div class="section" id="frequency_section">
+    <h2>Popup Frequency</h2>
+    <label>Set -1 to disable popup, 0 to display popup only once, and 1 or more to display popup every n days</label>
+    <input type="number" id="popup_frequency" value="1" min="-1">
+  </div>
+
+  <div class="section">
+    <button id="generateBtn">Generate Embed Code</button>
+    <button id="previewBtn">Live Preview</button>
+    <textarea id="embedCode" readonly></textarea>
+  </div>
+
+  <div id="popup_preview" class="preview-box hidden">
+    <strong>Popup Preview:</strong>
+    <div id="popup_content"></div>
+  </div>
+
+</div>
+
+<script src="popup-loader.js"></script>
+</body>
+</html>
