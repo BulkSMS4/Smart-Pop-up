@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartarget Popup Builder</title>
+<style>
+  body { font-family: "Segoe UI", sans-serif; background: #f9fafb; margin: 0; padding: 20px; }
+  .container { max-width: 1000px; margin: auto; background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  h2 { color: #0b5cff; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+  .group { margin-bottom: 25px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  input[type="text"], input[type="color"], input[type="number"], input[type="datetime-local"], textarea, select {
+    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .flex { display: flex; gap: 20px; flex-wrap: wrap; }
+  .half { flex: 1 1 48%; }
+  .checkbox-group { margin-top: 10px; }
+  .checkbox-group label { display: inline-block; font-weight: normal; margin-right: 15px; }
+  button { padding: 10px 20px; border: none; border-radius: 8px; background: #0b5cff; color: #fff; font-size: 15px; cursor: pointer; }
+  button:hover { background: #0044cc; }
+  #previewFrame { width: 100%; height: 500px; border: 1px solid #ddd; margin-top: 20px; border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Smartarget Popup Builder</h2>
+
+  <div class="group">
+    <label>Headline</label>
+    <input type="text" id="headline" placeholder="Your popup headline">
+    <label>Headline Color</label>
+    <input type="color" id="headline_color" value="#111827">
+  </div>
+
+  <div class="group">
+    <label>Text</label>
+    <textarea id="text" placeholder="Popup message"></textarea>
+    <label>Text Color</label>
+    <input type="color" id="text_color" value="#374151">
+  </div>
+
+  <div class="group flex">
+    <div class="half">
+      <label>Button Text</label>
+      <input type="text" id="button_text" placeholder="Learn More">
+    </div>
+    <div class="half">
+      <label>Link</label>
+      <input type="text" id="button_link" placeholder="https://your-site.com/...">
+    </div>
+  </div>
+
+  <div class="group flex">
+    <div class="half">
+      <label>Button Background</label>
+      <input type="color" id="button_bg_color" value="#0b5cff">
+    </div>
+    <div class="half">
+      <label>Button Text Color</label>
+      <input type="color" id="button_text_color" value="#ffffff">
+    </div>
+  </div>
+
+  <div class="group flex">
+    <div class="half">
+      <label>Media Type</label>
+      <select id="media_type">
+        <option value="image">Image</option>
+        <option value="video">Video</option>
+      </select>
+    </div>
+    <div class="half">
+      <label>Upload Image / Video</label>
+      <input type="file" id="media_upload" accept="image/*,video/*">
+    </div>
+  </div>
+
+  <div class="group">
+    <label>Popup Background Color</label>
+    <input type="color" id="popup_bg" value="#ffffff">
+  </div>
+
+  <div class="group checkbox-group">
+    <label><input type="checkbox" id="show_close" checked> Show Close Button</label>
+    <label><input type="checkbox" id="no_backdrop_close"> Don't Hide Popup on Backdrop Click</label>
+    <label><input type="checkbox" id="every_load"> Show Popup on Every Page Load</label>
+    <label><input type="checkbox" id="freq_toggle"> Show Popup with Specific Frequency</label>
+    <div id="freq_section" style="display:none;margin-top:10px;">
+      <label>Popup Frequency (Days)</label>
+      <input type="number" id="frequency" value="0" min="-1">
+    </div>
+  </div>
+
+  <div class="group">
+    <label>Delay (Seconds)</label>
+    <input type="number" id="delay" value="2" min="0">
+  </div>
+
+  <div class="group">
+    <label><input type="checkbox" id="add_schedule"> Add Schedule</label>
+    <div id="schedule_controls" style="display:none;margin-top:10px;">
+      <label>Start Date</label>
+      <input type="datetime-local" id="start_dt">
+      <label>End Date</label>
+      <input type="datetime-local" id="end_dt">
+    </div>
+  </div>
+
+  <div class="group">
+    <button id="previewBtn">Preview Popup</button>
+    <button id="generateBtn" style="background:#16a34a;margin-left:10px;">Generate Embed Code</button>
+  </div>
+
+  <div class="group">
+    <label>Embed Code</label>
+    <textarea id="embed_output" readonly></textarea>
+  </div>
+
+  <iframe id="previewFrame"></iframe>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let uploadedDataUrl = '';
+
+$('media_upload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { uploadedDataUrl = ev.target.result; };
+  reader.readAsDataURL(file);
+});
+
+$('show_close').addEventListener('change', () => {
+  if (!$('show_close').checked) {
+    $('no_backdrop_close').checked = false;
+    $('no_backdrop_close').disabled = true;
+  } else {
+    $('no_backdrop_close').disabled = false;
+  }
+});
+
+$('every_load').addEventListener('change', () => {
+  if ($('every_load').checked) {
+    $('freq_toggle').checked = false;
+    $('freq_section').style.display = 'none';
+  }
+});
+
+$('freq_toggle').addEventListener('change', () => {
+  $('freq_section').style.display = $('freq_toggle').checked ? 'block' : 'none';
+  if ($('freq_toggle').checked) $('every_load').checked = false;
+});
+
+$('add_schedule').addEventListener('change', () => {
+  $('schedule_controls').style.display = $('add_schedule').checked ? 'block' : 'none';
+});
+
+function getConfig() {
+  return {
+    headline: $('headline').value,
+    headlineColor: $('headline_color').value,
+    text: $('text').value,
+    textColor: $('text_color').value,
+    buttonText: $('button_text').value,
+    buttonLink: $('button_link').value,
+    buttonBgColor: $('button_bg_color').value,
+    buttonTextColor: $('button_text_color').value,
+    mediaType: $('media_type').value,
+    mediaUrl: uploadedDataUrl,
+    popupBg: $('popup_bg').value,
+    showClose: $('show_close').checked,
+    noBackdropClose: $('no_backdrop_close').checked,
+    everyLoad: $('every_load').checked,
+    freqToggle: $('freq_toggle').checked,
+    frequency: parseInt($('frequency').value),
+    delay: parseInt($('delay').value),
+    startAt: $('add_schedule').checked ? $('start_dt').value : '',
+    endAt: $('add_schedule').checked ? $('end_dt').value : ''
+  };
+}
+
+$('previewBtn').addEventListener('click', () => {
+  const cfg = getConfig();
+  const html = `
+  <html><head><script>window.smartPopConfig = ${JSON.stringify(cfg)};<\/script>
+  <script src="./popup-loader.js"><\/script></head><body></body></html>`;
+  const frame = $('previewFrame').contentWindow.document;
+  frame.open();
+  frame.write(html);
+  frame.close();
+});
+
+$('generateBtn').addEventListener('click', () => {
+  const cfg = getConfig();
+  const embed = `<!-- Smartarget Popup Embed -->
+<script>window.smartPopConfig = ${JSON.stringify(cfg, null, 2)};<\/script>
+<script src="https://your-domain.com/popup-loader.js"><\/script>`;
+  $('embed_output').value = embed;
+});
+</script>
+</body>
+</html>
